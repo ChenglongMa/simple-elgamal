@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ElGamal</title>
+    <script src="utils.js"></script>
+    <script src="elgamal.js"></script>
+    <style>
+        div {
+            float: left;
+            margin-right: 150px;
+            border: 1px dashed black;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+<h1>ElGamal</h1>
+<div>
+    <table>
+        <tr>
+            <td colspan="2"><h2>Key Generation </h2></td>
+        </tr>
+        <tr>
+            <td><label for="p">P:</label></td>
+            <td><input id="p" type="number" min="200" onchange="onChangeP(this)">
+                <br><span id="p-error" style="color: coral"></span>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="q">Q:</label></td>
+            <td><input id="q" type="number" onchange="onChangeQ(this)">
+                <br><span id="q-error" style="color: coral"></span>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="g">G:</label> <a href="javascript:" onclick="genG()">Surprise me!</a></td>
+            <td><input id="g" type="number" min="1" onchange="verifyG(Number(this.value))">
+                <span id="g-error" style="color: coral"></span>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="x">x:</label> <a href="javascript:" onclick="x=genRandom(q,'x')">Surprise me!</a></td>
+            <td><input id="x" type="number" min="1" onchange="x=verifyCeiling(Number(this.value),q,'x');"></td>
+        </tr>
+        <tr>
+            <td><label for="y">Y:</label></td>
+            <td><input id="y" type="number" readonly> <i> Y = G<sup>x</sup> mod P</i>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button onclick="generateKey()">Key Generate</button>
+            </td>
+            <td>{P, G, Y}: <b id="pk"></b></td>
+        </tr>
+        <tr>
+            <td colspan="2"><h2>Encryption </h2></td>
+        </tr>
+        <tr>
+            <td><label for="msg">Message:</label></td>
+            <td><input id="msg" type="number" onchange="msg=verifyCeiling(Number(this.value),p,'msg');"></td>
+        </tr>
+        <tr>
+            <td><label for="k">k:</label> <a href="javascript:" onclick="k=genRandom(q,'k')">Surprise me!</a></td>
+            <td><input id="k" type="number" onchange="k=verifyCeiling(Number(this.value),q,'k');"></td>
+        </tr>
+        <tr>
+            <td><label for="c1">C<sub>1</sub>:</label></td>
+            <td><input id="c1" type="number" readonly> <i> C<sub>1</sub> = G<sup>k</sup> mod P</i></td>
+        </tr>
+        <tr>
+            <td><label for="c2">C<sub>2</sub>:</label></td>
+            <td><input id="c2" type="number" readonly> <i> C<sub>2</sub> = y<sup>k</sup>M mod P</i>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button onclick="encryptMsg()">Encrypt</button>
+            </td>
+            <td>Cipher: <b id="cipher"></b></td>
+        </tr>
+        <tr>
+            <td colspan="2"><h2>Decryption </h2></td>
+        </tr>
+        <tr>
+            <td><label for="de-msg">Message (decrypted):</label></td>
+            <td><input id="de-msg" type="number" readonly> <i> M(plain) =
+                <sup>C<sub>2</sub></sup>&frasl;<sub>C<sub>1</sub><sup>x</sup></sub> mod P</i>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button onclick="decryptMsg()">Decrypt</button>
+            </td>
+        </tr>
+    </table>
+</div>
+<div>
+    <table>
+        <tr>
+            <td colspan="4"><h2>Multiplication over Encrypted Data</h2></td>
+        </tr>
+        <tr>
+            <td><input id="msg1" type="number" min="1" placeholder="Message 1"></td>
+            <td><input id="k1" type="number" min="1" placeholder="Random K"></td>
+            <td>&rAarr;</td>
+            <td><input id="cph1" type="text" readonly placeholder="Encrypted Message"></td>
+        </tr>
+        <tr>
+            <td><input id="msg2" type="number" min="1" placeholder="Message 2"></td>
+            <td><input id="k2" type="number" min="1" placeholder="Random K"></td>
+            <td>&rAarr;</td>
+            <td><input id="cph2" type="text" min="1" readonly placeholder="Encrypted Message"></td>
+        </tr>
+        <tr>
+            <td><input id="msg3" type="number" min="1" placeholder="Message 3"></td>
+            <td><input id="k3" type="number" min="1" placeholder="Random K"></td>
+            <td>&rAarr;</td>
+            <td><input id="cph3" type="text" readonly placeholder="Encrypted Message"></td>
+        </tr>
+        <tr>
+            <td><input id="msg4" type="number" min="1" placeholder="Message 4"></td>
+            <td><input id="k4" type="number" min="1" placeholder="Random K"></td>
+            <td>&rAarr;</td>
+            <td><input id="cph4" type="text" readonly placeholder="Encrypted Message"></td>
+        </tr>
+        <tr>
+            <td><input id="msg5" type="number" min="1" placeholder="Message 5"></td>
+            <td><input id="k5" type="number" min="1" placeholder="Random K"></td>
+            <td>&rAarr;</td>
+            <td><input id="cph5" type="text" readonly placeholder="Encrypted Message"></td>
+        </tr>
+        <tr>
+            <td>
+                <button id="encrypt-all" onclick="encryptAll()">Encrypt All</button>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3"><br><label for="cph-multi"><b>Multiplication over <u>Encrypted</u> Data</b></label></td>
+        </tr>
+        <tr>
+            <td colspan="3"><input id="cph-multi" type="text" readonly></td>
+        </tr>
+        <tr>
+            <td colspan="3"><br><label for="de-multi"><b>Decrypt Multiplication over <u>Encrypted</u> Data</b></label>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2"><input id="de-multi" type="text" readonly></td>
+        </tr>
+        <tr>
+            <td colspan="3"><br><label for="msg-multi"><b>Multiplication over <u>Plaintext</u> Data</b></label></td>
+        </tr>
+        <tr>
+            <td colspan="2"><input id="msg-multi" type="text" readonly>
+                <span id="result" style="color: aquamarine"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button id="calc" onclick="calculate()">Calculate</button>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>
